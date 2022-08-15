@@ -1,7 +1,7 @@
 #include "thread.h"
 #include <stdio.h>
 
-int hydra_create_thread(hydra_thread_t *thread)
+int hydra_thread_create(hydra_thread_t *thread)
 {
     pthread_t tid;
     pthread_attr_t attr;
@@ -34,7 +34,7 @@ int hydra_create_thread(hydra_thread_t *thread)
     return 0;
 }
 
-int hydra_cancel_thread(pthread_t tid)
+int hydra_thread_cancel(pthread_t tid)
 {
     if (pthread_cancel(tid) != 0) {
         fprintf(stderr, "Thread %d cannot be canceled\n", tid);

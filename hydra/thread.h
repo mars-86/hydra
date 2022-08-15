@@ -19,7 +19,7 @@ struct hydra_thread {
 
 typedef struct hydra_thread hydra_thread_t;
 
-int hydra_create_thread(hydra_thread_t *t);
-int hydra_cancel_thread(pthread_t tid);
+int hydra_thread_create(hydra_thread_t *t);
+int hydra_thread_cancel(pthread_t tid);
 
 #endif // _HYDRA_THREAD_INCLUDED_H_
