@@ -1,17 +1,19 @@
 #include "thread_pool.h"
+#include "pool_status.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 extern void *hydra_handler(void *args);
 extern hydra_job_queue_t *hydra_job_queue_init(void);
+extern hydra_pool_status_t pool_status;
 
-hydra_thread_node_t *hydra_create_tnode(hydra_thread_t *thread);
-hydra_job_node_t *hydra_create_jnode(hydra_job_t *job);
-hydra_thread_t *hydra_pool_alloc_thread(void *args);
+static hydra_thread_node_t *hydra_create_tnode(hydra_thread_t *thread);
+static hydra_job_node_t *hydra_create_jnode(hydra_job_t *job);
+static hydra_thread_t *hydra_pool_alloc_thread(void *args);
 
-int hydra_pool_add_thread(hydra_threads_t *threads, hydra_thread_t *thread);
-int hydra_pool_remove_last_thread(hydra_threads_t *threads);
-int hydra_pool_remove_thread(hydra_threads_t *threads, pthread_t tid);
+static int hydra_pool_add_thread(hydra_threads_t *threads, hydra_thread_t *thread);
+static int hydra_pool_remove_last_thread(hydra_threads_t *threads);
+static int hydra_pool_remove_thread(hydra_threads_t *threads, pthread_t tid);
 
 int hydra_pool_init(hydra_pool_t *pool, unsigned short nthreads)
 {
@@ -21,15 +23,19 @@ int hydra_pool_init(hydra_pool_t *pool, unsigned short nthreads)
     pool->shared = (hydra_pool_shared_t *)malloc(sizeof(hydra_pool_shared_t));
     pool->threads->begin = NULL;
     pool->nthreads = nthreads;
-    pthread_mutex_init(&(pool->shared->lock), NULL); // = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_init(&(pool->shared->lock), NULL); // PTHREAD_MUTEX_INITIALIZER;
     pool->shared->jobs = hydra_job_queue_init();
     pool->active_jobs = 0;
 
+    pool_status = CREATED;
+    
     for (i = 0; i < pool->nthreads; ++i) {
         hydra_thread_t *t = hydra_pool_alloc_thread(pool->shared);
         hydra_thread_create(t);
         hydra_pool_add_thread(pool->threads, t);
     }
+
+    pool_status = STARTING;
 
     return 0;
 }

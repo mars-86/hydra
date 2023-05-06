@@ -16,10 +16,11 @@ void *hydra_handler(void *args)
         pthread_mutex_unlock(lock);
 
         if (job != NULL) {
-            printf("In thread %d job with args %d\n", pthread_self(), (job != NULL) ? job->args : NULL);
+            // printf("In thread %d job with args %d\n", pthread_self(), (job != NULL) ? job->args : NULL);
+            job->func(job->args);
             free(job), job = NULL;
         }
-        Sleep(20);
+        Sleep(10);
     }
 
     printf("Thread %d destroyed\n", pthread_self());

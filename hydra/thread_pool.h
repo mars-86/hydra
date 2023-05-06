@@ -1,5 +1,5 @@
-#ifndef _HYDRA_THREAD_POOL_INCLUDED_H_
-#define _HYDRA_THREAD_POOL_INCLUDED_H_
+#ifndef __HYDRA_THREAD_POOL_INCLUDED_H__
+#define __HYDRA_THREAD_POOL_INCLUDED_H__
 
 #include "thread.h"
 #include "job_queue.h"
@@ -38,4 +38,4 @@ int hydra_pool_add_job(hydra_pool_t *pool, hydra_job_t *job);
 int hydra_pool_destroy(hydra_pool_t *pool);
 void hydra_pool_list_threads(hydra_pool_t *pool);
 
-#endif // _HYDRA_THREAD_POOL_INCLUDED_H_
+#endif // __HYDRA_THREAD_POOL_INCLUDED_H__

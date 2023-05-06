@@ -1,0 +1,16 @@
+#ifndef __HYDRA_POOL_STATUS_INCLUDED_H__
+#define __HYDRA_POOL_STATUS_INCLUDED_H__
+
+enum HYDRA_POOL_STATUS{
+    NOT_CREATED,
+    CREATED,
+    STARTING,
+    ACTIVE,
+    IDDLE,
+    STOPPED,
+    DESTROYED
+};
+
+typedef enum HYDRA_POOL_STATUS hydra_pool_status_t;
+
+#endif // __HYDRA_POOL_STATUS_INCLUDED_H__

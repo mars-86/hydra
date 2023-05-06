@@ -2,6 +2,12 @@
 #include "hydra.h"
 #include <windows.h>
 
+void *print(void *args)
+{
+    putchar((int)args);
+    putchar('\n');
+}
+
 int main(void)
 {
     SYSTEM_INFO sysinfo;
@@ -13,11 +19,15 @@ int main(void)
     hydra_pool_init(&pool, sysinfo.dwNumberOfProcessors + 1);
     hydra_job_t job;
 
-    int i;
-    for (i = 0; i < 1024; ++i) {
+    int i, j =0;
+    while(j < 10000) {
+    for (i = 96; i < 128; ++i) {
         job.args = i + 1;
-        job.func = NULL;
+        job.func = &print;
         hydra_pool_add_job(&pool, &job);
+    }
+    i = 0; ++j;
+    printf("cycle: %d\n", j);
     }
 
     Sleep(10000);

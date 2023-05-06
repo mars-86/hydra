@@ -2,7 +2,6 @@
 #define _HYDRA_THREAD_INCLUDED_H_
 
 #include <pthread.h>
-
 struct hydra_thread_attr {
     int state;
 };
