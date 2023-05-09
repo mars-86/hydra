@@ -40,6 +40,10 @@ int hydra_thread_cancel(pthread_t tid)
         fprintf(stderr, "Thread %d cannot be canceled\n", tid);
         return -1;
     }
+
+#ifdef __DEBUG
     printf("Thread %d canceled\n", tid);
+#endif
+
     return 0;
 }

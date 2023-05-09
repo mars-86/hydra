@@ -41,14 +41,14 @@ int hydra_pool_init(hydra_pool_t *pool, unsigned short nthreads)
 int hydra_pool_add_job(hydra_pool_t *pool, hydra_job_t *job)
 {
     hydra_job_node_t *new_job = hydra_create_job_node(job);
-    hydra_job_queue_add(pool->shared->jobs, pool->shared->lock, new_job);
+    hydra_job_queue_add(pool->shared->jobs, &(pool->shared->lock), new_job);
 
     return 0;
 }
 
 hydra_job_t *hydra_pool_dispatch_job(hydra_pool_t *pool)
 {
-    return hydra_job_queue_dispatch(pool->shared->jobs, pool->shared->lock);
+    return hydra_job_queue_dispatch(pool->shared->jobs, &(pool->shared->lock));
 }
 
 int hydra_pool_destroy(hydra_pool_t *pool)
@@ -104,7 +104,10 @@ int hydra_pool_add_thread(hydra_threads_t *threads, hydra_thread_t *thread)
             }
         }
     }
+
+#ifdef __DEBUG
     printf("Thread %d added\n", tnode->thread->id);
+#endif
 
     return 0;
 }
@@ -117,7 +120,9 @@ int hydra_pool_remove_last_thread(hydra_threads_t *threads)
         if (tp->next == NULL)
             break;
 
+#ifdef __DEBUG
     printf("Removing thread %d from active threads\n", tp->thread->id);
+#endif
     // TODO: Handle detached state
     hydra_thread_cancel(tp->thread->id);
     free(tp->thread), tp->thread = NULL;

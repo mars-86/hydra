@@ -18,19 +18,19 @@ void *hydra_handler(void *args)
         job = hydra_job_queue_dispatch(jobs, lock);
 
         if (job != NULL) {
-            // printf("In thread %d job with args %d\n", pthread_self(), (job != NULL) ? job->args : NULL);
-
+#ifdef __DEBUG
+            printf("In thread %d job with args %d\n", pthread_self(), job->args);
+#endif    
             job->routine(job->args);
             free(job), job = NULL;
             // continue;
-            // printf("jobs in queue: %d\n", jobs->jobs);
         }
         // pthread_cond_wait(&job_in_queue, lock);
-        Sleep(15);
+        Sleep(1);
     }
 
 #ifdef __DEBUG
     printf("Thread %d destroyed\n", pthread_self());
-#endif     
+#endif
     pthread_exit(NULL);
 }

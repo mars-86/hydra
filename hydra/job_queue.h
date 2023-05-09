@@ -20,8 +20,8 @@ struct hydra_job_queue {
 typedef struct hydra_job_queue hydra_job_queue_t;
 
 hydra_job_queue_t *hydra_job_queue_init(void);
-int hydra_job_queue_add(hydra_job_queue_t *queue, pthread_mutex_t lock, hydra_job_node_t *job);
-hydra_job_t *hydra_job_queue_dispatch(hydra_job_queue_t *queue, pthread_mutex_t lock);
+int hydra_job_queue_add(hydra_job_queue_t *queue, pthread_mutex_t *lock, hydra_job_node_t *job);
+hydra_job_t *hydra_job_queue_dispatch(hydra_job_queue_t *queue, pthread_mutex_t *lock);
 int hydra_job_queue_destroy(hydra_job_queue_t *queue);
 
 #endif // __HYDRA_JOB_QUEUE_H_INCLUDED__

@@ -17,9 +17,9 @@ hydra_job_queue_t *hydra_job_queue_init(void)
     return q;
 }
 
-int hydra_job_queue_add(hydra_job_queue_t *queue, pthread_mutex_t lock, hydra_job_node_t *job)
+int hydra_job_queue_add(hydra_job_queue_t *queue, pthread_mutex_t *lock, hydra_job_node_t *job)
 {
-    pthread_mutex_lock(&lock);
+    pthread_mutex_lock(lock);
     if (queue->begin == NULL) {
         queue->begin = queue->end = job;
         
@@ -32,16 +32,18 @@ int hydra_job_queue_add(hydra_job_queue_t *queue, pthread_mutex_t lock, hydra_jo
     // if (!(*queue)->jobs) 
     // pthread_cond_signal(&job_in_queue);
     queue->jobs++;
-    pthread_mutex_unlock(&lock);
+    pthread_mutex_unlock(lock);
 
-    // printf("active jobs in queue: %d\n", queue->jobs);
+#ifdef __DEBUG
+    printf("active jobs in queue: %d\n", queue->jobs);
+#endif
 
     return 0;
 }
 
-hydra_job_t *hydra_job_queue_dispatch(hydra_job_queue_t *queue, pthread_mutex_t lock)
+hydra_job_t *hydra_job_queue_dispatch(hydra_job_queue_t *queue, pthread_mutex_t *lock)
 {
-    pthread_mutex_lock(&lock);
+    pthread_mutex_lock(lock);
     hydra_job_node_t *n = queue->begin;
     hydra_job_t *j = NULL;
 
@@ -53,7 +55,7 @@ hydra_job_t *hydra_job_queue_dispatch(hydra_job_queue_t *queue, pthread_mutex_t 
         free(n);
         // printf("job dispatched\n");
     }
-    pthread_mutex_unlock(&lock);
+    pthread_mutex_unlock(lock);
 
     return j;
 }
