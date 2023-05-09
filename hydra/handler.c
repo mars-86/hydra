@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include "thread_pool.h"
+#include "pool.h"
+
+pthread_cond_t job_in_queue = PTHREAD_COND_INITIALIZER;
 
 void *hydra_handler(void *args)
 {
@@ -9,20 +11,26 @@ void *hydra_handler(void *args)
     hydra_job_queue_t *jobs = (hydra_job_queue_t *)shared->jobs;
     pthread_mutex_t *lock = &(shared->lock);
     hydra_job_t *job = NULL;
+#ifdef __DEBUG
     printf("Hydra handler created in thread %d\n", pthread_self());
+#endif
     while (1) {
-        pthread_mutex_lock(lock);
-        job = hydra_job_queue_dispatch(jobs);
-        pthread_mutex_unlock(lock);
+        job = hydra_job_queue_dispatch(jobs, lock);
 
         if (job != NULL) {
             // printf("In thread %d job with args %d\n", pthread_self(), (job != NULL) ? job->args : NULL);
-            job->func(job->args);
+
+            job->routine(job->args);
             free(job), job = NULL;
+            // continue;
+            // printf("jobs in queue: %d\n", jobs->jobs);
         }
-        Sleep(10);
+        // pthread_cond_wait(&job_in_queue, lock);
+        Sleep(15);
     }
 
+#ifdef __DEBUG
     printf("Thread %d destroyed\n", pthread_self());
+#endif     
     pthread_exit(NULL);
 }

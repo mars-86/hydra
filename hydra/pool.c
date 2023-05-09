@@ -1,14 +1,12 @@
-#include "thread_pool.h"
-#include "pool_status.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "pool.h"
 
 extern void *hydra_handler(void *args);
 extern hydra_job_queue_t *hydra_job_queue_init(void);
-extern hydra_pool_status_t pool_status;
 
 static hydra_thread_node_t *hydra_create_tnode(hydra_thread_t *thread);
-static hydra_job_node_t *hydra_create_jnode(hydra_job_t *job);
+static hydra_job_node_t *hydra_create_job_node(hydra_job_t *job);
 static hydra_thread_t *hydra_pool_alloc_thread(void *args);
 
 static int hydra_pool_add_thread(hydra_threads_t *threads, hydra_thread_t *thread);
@@ -27,7 +25,7 @@ int hydra_pool_init(hydra_pool_t *pool, unsigned short nthreads)
     pool->shared->jobs = hydra_job_queue_init();
     pool->active_jobs = 0;
 
-    pool_status = CREATED;
+    pool->status = CREATED;
     
     for (i = 0; i < pool->nthreads; ++i) {
         hydra_thread_t *t = hydra_pool_alloc_thread(pool->shared);
@@ -35,22 +33,22 @@ int hydra_pool_init(hydra_pool_t *pool, unsigned short nthreads)
         hydra_pool_add_thread(pool->threads, t);
     }
 
-    pool_status = STARTING;
+    pool->status = STARTING;
 
     return 0;
 }
 
 int hydra_pool_add_job(hydra_pool_t *pool, hydra_job_t *job)
 {
-    hydra_job_node_t *new_job = hydra_create_jnode(job);
-    hydra_job_queue_add(pool->shared->jobs, new_job);
+    hydra_job_node_t *new_job = hydra_create_job_node(job);
+    hydra_job_queue_add(pool->shared->jobs, pool->shared->lock, new_job);
 
     return 0;
 }
 
-hydra_job_t *hydra_pool_dispatch_job(hydra_job_queue_t *queue)
+hydra_job_t *hydra_pool_dispatch_job(hydra_pool_t *pool)
 {
-    return hydra_job_queue_dispatch(queue);
+    return hydra_job_queue_dispatch(pool->shared->jobs, pool->shared->lock);
 }
 
 int hydra_pool_destroy(hydra_pool_t *pool)
@@ -60,11 +58,11 @@ int hydra_pool_destroy(hydra_pool_t *pool)
         hydra_pool_remove_last_thread(pool->threads);
         pool->nthreads--;
     }
-    
+
     if (pool->threads != NULL) free(pool->threads);
     if (pool->shared != NULL) free(pool->shared);
     pthread_mutex_destroy(&(pool->shared->lock));
-    
+
     return 0;
 }
 
@@ -79,14 +77,15 @@ hydra_thread_node_t *hydra_create_tnode(hydra_thread_t *thread)
     return tnode;
 }
 
-hydra_job_node_t *hydra_create_jnode(hydra_job_t *job)
+hydra_job_node_t *hydra_create_job_node(hydra_job_t *job)
 {
     hydra_job_node_t *jnode;
     // TODO: add malloc validations
     jnode = (hydra_job_node_t *)malloc(sizeof(hydra_job_node_t));
     jnode->job = (hydra_job_t *)malloc(sizeof(hydra_job_t));
-    jnode->job->func = job->func;
+    jnode->job->routine = job->routine;
     jnode->job->args = job->args;
+    jnode->job->status = PENDING;
     jnode->next = NULL;
 
     return jnode;
@@ -149,7 +148,7 @@ void hydra_pool_list_threads(hydra_pool_t *pool)
 hydra_thread_t *hydra_pool_alloc_thread(void *args)
 {
     hydra_thread_t *t = (hydra_thread_t *)malloc(sizeof(hydra_thread_t));
-    t->attr = NULL, t->func = &hydra_handler;
+    t->attr = NULL, t->routine = &hydra_handler;
     t->args = args;
 
     return t;

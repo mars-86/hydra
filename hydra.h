@@ -1,6 +1,6 @@
-#ifndef _HYDRA_INCLUDED_H_
-#define _HYDRA_INCLUDED_H_
+#ifndef __HYDRA_INCLUDED_H__
+#define __HYDRA_INCLUDED_H__
 
-#include "hydra/thread_pool.h"
+#include "hydra/pool.h"
 
-#endif // _HYDRA_INCLUDED_H_
+#endif // __HYDRA_INCLUDED_H__

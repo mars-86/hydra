@@ -15,7 +15,7 @@ int hydra_thread_create(hydra_thread_t *thread)
             if (thread->attr->state)
                 pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
         }
-        routine = thread->func;
+        routine = thread->routine;
         args = thread->args;
     }
 

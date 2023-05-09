@@ -20,17 +20,17 @@ int main(void)
     hydra_job_t job;
 
     int i, j =0;
-    while(j < 10000) {
-    for (i = 96; i < 128; ++i) {
-        job.args = i + 1;
-        job.func = &print;
-        hydra_pool_add_job(&pool, &job);
-    }
-    i = 0; ++j;
-    printf("cycle: %d\n", j);
+    while(j < 3) {
+        for (i = 96; i < 128; ++i) {
+            job.args = i + 1;
+            job.routine = &print;
+            hydra_pool_add_job(&pool, &job);
+        }
+        i = 0; ++j;
+        printf("cycle: %d\n", j);
     }
 
-    Sleep(10000);
+    Sleep(2000);
     hydra_pool_destroy(&pool);
 
     return 0;
